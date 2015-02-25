@@ -56,7 +56,7 @@ module VagrantPlugins
       def run_cert_tool machine, container_id, cert_id = nil, manifest = nil, server =nil
 	machine.communicate.execute('docker export #{container_id} > export.tar', :sudo => true)
         machine.communicate.execute('setenforce 0', :sudo => true)
-        machine.communicate.execute('rhcert-backend save --id #{cert_id} --image export.tar --manifest  #{manifest} --server #{server} #{container_id}', :sudo => true)
+        machine.communicate.execute('rhcert-backend submit --id #{cert_id} --image export.tar --manifest  #{manifest} --server #{server} #{container_id}', :sudo => true)
         machine.communicate.execute('setenforce 1', :sudo => true)
       end
     end # Command
