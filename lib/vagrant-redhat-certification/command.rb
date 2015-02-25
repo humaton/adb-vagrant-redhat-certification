@@ -19,7 +19,7 @@ module VagrantPlugins
 
         with_target_vms(nil, single_target: true) do |machine|
           if machine.guest.name == :redhat
-            if machine.guest.capability?(:container_probe_tool)
+            if machine.guest.capability?(:rhcert)
               run_cert_tool machine argv[0]
             else
               @env.ui.info "Your machine does not have tool necessary to continue certification process."
@@ -53,9 +53,10 @@ module VagrantPlugins
 	machine.communicate.execute('rhcert-backend server start', :sudo => true)
       end
       
-      def run_cert_tool machine, container_image
+      def run_cert_tool machine, container_id, cert_id = nil, manifest = nil, server =nil
+	machine.communicate.execute('docker export #{container_id} > export.tar', :sudo => true)
         machine.communicate.execute('setenforce 0', :sudo => true)
-        machine.communicate.execute('/usr/bin/container-probe-tool -o ./ #{container_image}', :sudo => true)
+        machine.communicate.execute('rhcert-backend save --id #{cert_id} --image export.tar --manifest  #{manifest} --server #{server} #{container_id}', :sudo => true)
         machine.communicate.execute('setenforce 1', :sudo => true)
       end
     end # Command
